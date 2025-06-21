@@ -3,8 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <title>FontGen AI Studio</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    #preview img { max-width: 400px; margin-top: 20px; }
+  </style>
 </head>
 <body>
-  <h1>🚀 FontGen Frontend is Alive</h1>
+  <h1>FontGen AI Studio</h1>
+  <input id="prompt" placeholder="Describe your font" size="40" />
+  <button id="generate">Generate</button>
+  <div id="message"></div>
+  <div id="preview"></div>
+  <a id="download" style="display:none" href="#">Download</a>
+  <script>
+    const apiKey = localStorage.getItem('api_key') || '';
+    async function generate(){
+      const prompt = document.getElementById('prompt').value;
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, api_key: apiKey })
+      });
+      const data = await res.json();
+      if(!res.ok){
+        document.getElementById('message').textContent = data.error;
+        return;
+      }
+      document.getElementById('message').textContent = data.remaining === null ? 'Premium user' : `Remaining free uses: ${data.remaining}`;
+      document.getElementById('preview').innerHTML = `<img src="data:image/png;base64,${data.preview}" />`;
+      const download = document.getElementById('download');
+      download.href = '/download/' + data.font_id;
+      download.style.display = 'inline';
+    }
+    document.getElementById('generate').addEventListener('click', generate);
+  </script>
 </body>
 </html>
