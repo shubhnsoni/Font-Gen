@@ -4,19 +4,37 @@
   <meta charset="UTF-8">
   <title>FontGen AI Studio</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; }
-    #preview img { max-width: 400px; margin-top: 20px; }
+    body { font-family: Arial, sans-serif; margin: 40px; background:#f5f5f5; }
+    #app { background:white; padding:20px; max-width:600px; margin:auto; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    form { display:flex; gap:10px; margin-bottom:20px; }
+    input[type="text"]{ flex:1; padding:8px; font-size:1rem; }
+    button{ padding:8px 12px; font-size:1rem; cursor:pointer; }
+    #preview img { max-width:100%; margin-top:20px; border:1px solid #ccc; padding:10px; border-radius:4px; }
+    #actions{ margin-top:10px; }
+    #download, #share{ margin-right:10px; }
   </style>
 </head>
 <body>
-  <h1>FontGen AI Studio</h1>
-  <input id="prompt" placeholder="Describe your font" size="40" />
-  <button id="generate">Generate</button>
-  <div id="message"></div>
-  <div id="preview"></div>
-  <a id="download" style="display:none" href="#">Download</a>
+  <div id="app">
+    <h1>FontGen AI Studio</h1>
+    <form id="generator-form" onsubmit="return false;">
+      <input id="prompt" type="text" placeholder="Describe your font" />
+      <button id="generate" type="submit">Generate</button>
+    </form>
+    <div id="usage"></div>
+    <div id="message"></div>
+    <div id="preview"></div>
+    <div id="actions">
+      <a id="download" style="display:none" href="#" download>Download</a>
+      <button id="share" style="display:none">Share</button>
+    </div>
+  </div>
   <script>
     const apiKey = localStorage.getItem('api_key') || '';
+    const usageEl = document.getElementById('usage');
+    const download = document.getElementById('download');
+    const shareBtn = document.getElementById('share');
+
     async function generate(){
       const prompt = document.getElementById('prompt').value;
       const res = await fetch('/generate', {
@@ -29,12 +47,24 @@
         document.getElementById('message').textContent = data.error;
         return;
       }
-      document.getElementById('message').textContent = data.remaining === null ? 'Premium user' : `Remaining free uses: ${data.remaining}`;
+      document.getElementById('message').textContent = '';
+      usageEl.textContent = data.remaining === null ? 'Premium user' : `Remaining free uses: ${data.remaining}`;
       document.getElementById('preview').innerHTML = `<img src="data:image/png;base64,${data.preview}" />`;
-      const download = document.getElementById('download');
       download.href = '/download/' + data.font_id;
       download.style.display = 'inline';
+      shareBtn.style.display = 'inline';
+      shareBtn.onclick = () => shareFont(download.href);
     }
+
+    function shareFont(url){
+      if(navigator.share){
+        navigator.share({title:'My Font', url});
+      } else {
+        navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard');
+      }
+    }
+
     document.getElementById('generate').addEventListener('click', generate);
   </script>
 </body>

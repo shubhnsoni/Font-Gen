@@ -12,4 +12,4 @@ This repo contains minimal boilerplate files for every runtime referenced in the
    ```bash
    python backend.py
    ```
-3. Open `index.html` in your browser and try generating fonts. Free users are limited to three generations unless `api_key: "premium"` is provided in the request payload.
+3. Open `index.html` in your browser and try generating fonts. The page now shows a preview of the generated font, remaining free uses and convenient download and share buttons. Free users are limited to three generations unless `api_key: "premium"` is provided in the request payload.
