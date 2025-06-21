@@ -11,14 +11,22 @@
 <body>
   <h1>FontGen AI Studio</h1>
   <input id="prompt" placeholder="Describe your font" size="40" />
+  <input id="api_key_input" placeholder="API Key (optional)" size="20" />
   <button id="generate">Generate</button>
   <div id="message"></div>
   <div id="preview"></div>
   <a id="download" style="display:none" href="#">Download</a>
   <script>
-    const apiKey = localStorage.getItem('api_key') || '';
+    const apiInput = document.getElementById('api_key_input');
+    apiInput.value = localStorage.getItem('api_key') || '';
+    apiInput.addEventListener('change', () => {
+      localStorage.setItem('api_key', apiInput.value);
+    });
+
     async function generate(){
       const prompt = document.getElementById('prompt').value;
+      const apiKey = apiInput.value.trim();
+      localStorage.setItem('api_key', apiKey);
       const res = await fetch('/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
