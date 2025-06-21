@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+dist/
+node_modules/
+package-lock.json
+bun.lockb
+
+# Rust
+/target/
+
+# Go
+/bin/
+
+# Swift
+*.swiftpm
+
+# Misc
+*.lock
+*lock.json
+CACHEDIR.TAG
+.DS_Store
