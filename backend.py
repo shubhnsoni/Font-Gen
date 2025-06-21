@@ -68,5 +68,16 @@ def preview_font(font_id):
         return jsonify(error="Font not found"), 404
     return send_file(BytesIO(font), mimetype="image/png")
 
+
+# New route to obtain a public share URL for a generated font
+@app.route("/share/<font_id>")
+def share_font(font_id):
+    """Return a sharable URL that opens the preview in the browser."""
+    if font_id not in fonts:
+        return jsonify(error="Font not found"), 404
+    # Compose full URL to the preview endpoint
+    url = request.host_url.rstrip("/") + f"/preview/{font_id}"
+    return jsonify(url=url)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5050)
