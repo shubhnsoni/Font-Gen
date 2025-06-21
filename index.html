@@ -15,6 +15,7 @@
   <div id="message"></div>
   <div id="preview"></div>
   <a id="download" style="display:none" href="#">Download</a>
+  <a id="download-all" style="display:none" href="#">Download All</a>
   <script>
     const apiKey = localStorage.getItem('api_key') || '';
     async function generate(){
@@ -34,6 +35,9 @@
       const download = document.getElementById('download');
       download.href = '/download/' + data.font_id;
       download.style.display = 'inline';
+      const downloadAll = document.getElementById('download-all');
+      downloadAll.href = '/download_all' + (apiKey ? `?api_key=${apiKey}` : '');
+      downloadAll.style.display = 'inline';
     }
     document.getElementById('generate').addEventListener('click', generate);
   </script>
