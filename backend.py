@@ -3,10 +3,13 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 import base64
 import uuid
+import zipfile
 
 free_limit = 3
 usage = {}
 fonts = {}
+# Track fonts generated per user for download-all feature
+fonts_by_user = {}
 
 def create_font_image(prompt: str) -> bytes:
     img = Image.new("RGB", (400, 200), color="white")
@@ -41,6 +44,8 @@ def generate_font():
     font_data = create_font_image(prompt)
     font_id = str(uuid.uuid4())
     fonts[font_id] = font_data
+    # Save mapping of user to generated fonts for bulk download
+    fonts_by_user.setdefault(user, []).append(font_id)
     usage[user] = count + 1
 
     preview_b64 = base64.b64encode(font_data).decode("utf-8")
@@ -67,6 +72,30 @@ def preview_font(font_id):
     if not font:
         return jsonify(error="Font not found"), 404
     return send_file(BytesIO(font), mimetype="image/png")
+
+
+@app.route("/download_all")
+def download_all():
+    """Zip and return all fonts generated in the current session."""
+    api_key = request.args.get("api_key", "")
+    user = api_key or request.remote_addr
+    ids = fonts_by_user.get(user)
+    if not ids:
+        return jsonify(error="No fonts found"), 404
+
+    buf = BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        for fid in ids:
+            font = fonts.get(fid)
+            if font:
+                zf.writestr(f"{fid}.png", font)
+    buf.seek(0)
+    return send_file(
+        buf,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name="fonts.zip",
+    )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5050)
