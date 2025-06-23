@@ -41,7 +41,8 @@ def generate_font():
     font_data = create_font_image(prompt)
     font_id = str(uuid.uuid4())
     fonts[font_id] = font_data
-    usage[user] = count + 1
+    if api_key != "premium":
+        usage[user] = count + 1
 
     preview_b64 = base64.b64encode(font_data).decode("utf-8")
     remaining = None if api_key == "premium" else max(0, free_limit - usage[user])
